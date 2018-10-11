@@ -60,7 +60,7 @@ func main() {
 			log.Fatal(errors.Wrap(err, "getting github stars"))
 		}
 
-		if flags.threshold == -1 || (flags.threshold > -1 && stars > flags.threshold) {
+		if flags.threshold == -1 || stars > flags.threshold {
 			res = append(res, result{
 				Path:  p,
 				Stars: stars,
