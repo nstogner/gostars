@@ -8,7 +8,7 @@ import (
 
 type importMap map[string]struct{}
 
-func (i importMap) find(path string) error {
+func (i importMap) populate(path string) error {
 	ctx := build.Default
 	pkg, err := ctx.Import(path, ".", 0)
 	if err != nil {
@@ -20,7 +20,7 @@ func (i importMap) find(path string) error {
 
 	for _, p := range pkg.Imports {
 		i[p] = struct{}{}
-		if err := i.find(p); err != nil {
+		if err := i.populate(p); err != nil {
 			return errors.Wrap(err, "finding")
 		}
 	}

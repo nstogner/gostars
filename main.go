@@ -24,19 +24,18 @@ func main() {
 	flag.Parse()
 
 	if flags.help {
-		flag.CommandLine.SetOutput(os.Stdout)
 		printUsage()
 		os.Exit(0)
 	}
 
 	pkg := "."
-	if len(flag.Args()) == 2 {
-		pkg = flag.Args()[1]
+	if args := flag.Args(); len(args) == 1 {
+		pkg = args[0]
 	}
 
 	// Find all package imports.
 	imap := make(importMap)
-	if err := imap.find(pkg); err != nil {
+	if err := imap.populate(pkg); err != nil {
 		log.Fatal(errors.Wrap(err, "finding imports"))
 	}
 
@@ -96,5 +95,6 @@ type result struct {
 
 func printUsage() {
 	fmt.Println("gostars [options] [<package>]\n")
+	flag.CommandLine.SetOutput(os.Stdout)
 	flag.Usage()
 }
