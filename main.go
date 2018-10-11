@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/pkg/errors"
@@ -46,6 +47,7 @@ func main() {
 			paths = append(paths, p)
 		}
 	}
+	sort.Strings(paths)
 
 	// Find and filter on stars.
 	res := make([]result, 0)
