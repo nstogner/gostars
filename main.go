@@ -37,7 +37,7 @@ func main() {
 	// Find all package imports.
 	imap := make(importMap)
 	if err := imap.find(pkg); err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrap(err, "finding imports"))
 	}
 
 	// Filter on github packages.
@@ -79,11 +79,14 @@ func main() {
 	// Write output.
 	if flags.json {
 		if err := json.NewEncoder(os.Stdout).Encode(res); err != nil {
-			log.Fatal(errors.Wrap(err, "json"))
+			log.Fatal(errors.Wrap(err, "outputting json"))
 		}
 	} else {
 		for _, r := range res {
-			fmt.Printf("%v\t%v\n", r.Stars, r.Path)
+			if _, err := fmt.Printf("%v\t%v\n", r.Stars, r.Path); err != nil {
+				// Utoh, the world is probably over as well.
+				log.Fatal(errors.Wrap(err, "printing to stdout"))
+			}
 		}
 	}
 
