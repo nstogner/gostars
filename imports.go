@@ -2,6 +2,7 @@ package main
 
 import (
 	"go/build"
+	"sort"
 
 	"github.com/pkg/errors"
 )
@@ -25,4 +26,16 @@ func (i importMap) populate(path string) error {
 		}
 	}
 	return nil
+}
+
+func filterAndOrder(m map[string]struct{}, filter func(string) bool) []string {
+	// Filter on github packages.
+	var paths []string
+	for p := range m {
+		if filter(p) {
+			paths = append(paths, p)
+		}
+	}
+	sort.Strings(paths)
+	return paths
 }

@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -41,33 +39,12 @@ func main() {
 	}
 
 	// Filter on github packages.
-	var paths []string
-	for p := range imap {
-		if isGithubPath(p) {
-			paths = append(paths, p)
-		}
-	}
-	sort.Strings(paths)
+	paths := filterAndOrder(imap, isGithubPath)
 
 	// Find and filter on stars.
-	res := make([]result, 0)
-	for _, p := range paths {
-		stars, err := getGithubStars(p)
-		if err != nil {
-			if err == errNotFound {
-				// Allow for non-published/private repos.
-				continue
-			}
-			log.Fatal(errors.Wrap(err, "getting github stars"))
-		}
-
-		if flags.threshold == -1 || stars > flags.threshold {
-			res = append(res, result{
-				Path:  p,
-				Stars: stars,
-			})
-		}
-		time.Sleep(time.Second)
+	res, err := fetchAndFilterStars(paths, getGithubStars, flags.threshold)
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "generating results"))
 	}
 
 	// Write output.
@@ -88,11 +65,6 @@ func main() {
 	if flags.threshold > -1 && len(res) > 0 {
 		os.Exit(1)
 	}
-}
-
-type result struct {
-	Path  string `json:"path"`
-	Stars int    `json:"stars"`
 }
 
 func printUsage() {
